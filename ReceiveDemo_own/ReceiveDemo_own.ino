@@ -49,7 +49,6 @@ void debugWsPrint(const char* format, ...) {
   va_list args;
   va_start (args, format);
   vsnprintf (buffer,256,format, args);
-  perror (buffer);
   va_end (args);
 
   webSocket.sendTXT(buffer);
@@ -117,14 +116,7 @@ void setup_wifi() {
   ArduinoOTA.setPort(8266);
 
   ArduinoOTA.onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH)
-      type = "sketch";
-    else // U_SPIFFS
-      type = "filesystem";
-
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    Serial.println("Start updating " + type);
+    Serial.println("Start updating");
   });
   ArduinoOTA.onEnd([]() {
     Serial.println("\nEnd");
