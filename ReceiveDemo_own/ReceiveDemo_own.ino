@@ -1,6 +1,9 @@
+#include <Syslog.h>
+
 #include <WebSockets.h>
 #include <WebSocketsServer.h>
 #include <WebSocketsClient.h>
+#include <ESP8266WebServer.h>
 
 /*
   Simple example for receiving
@@ -38,6 +41,7 @@ const int transmit_pin = D5;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+ESP8266WebServer server(80);
 
 WebSocketsClient webSocket;
 
@@ -52,6 +56,7 @@ void debugWsPrint(const char* format, ...) {
   va_end (args);
 
   webSocket.sendTXT(buffer);
+  Serial.println(buffer);
 }
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t lenght) {
@@ -94,9 +99,16 @@ void setup() {
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 
-  webSocket.begin("192.168.1.106", 8000);
+  webSocket.begin("192.168.1.107", 8000);
   //webSocket.setAuthorization("user", "Password"); // HTTP Basic Authorization
   webSocket.onEvent(webSocketEvent);
+
+  server.on("/", handleRoot);
+  server.begin();
+}
+
+void handleRoot() {
+  server.send(200, "text/plain", "Hello!");
 }
 
 void setup_wifi() {
@@ -192,6 +204,7 @@ void loop() {
   }
   client.loop();
   webSocket.loop();
+  server.handleClient();
   
   ArduinoOTA.handle();
   if (mySwitch.available()) {
@@ -211,5 +224,12 @@ void loop() {
     }
 
     mySwitch.resetAvailable();
+  }
+
+  if (Serial.available()) {
+    Serial.println("restarting");
+    while (Serial.available())
+      Serial.read();
+    ESP.restart();
   }
 }
