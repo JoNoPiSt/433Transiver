@@ -1,0 +1,21 @@
+{
+  "name": "esp",
+  "description": "Generic ESP8266 Sensor Module",
+  "keywords": "rf, radio, wireless",
+  "authors":
+  {
+    "name": "Pierre Ståhl",
+    "name": "Joel Nordh"
+  },
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/JoNoPiSt/433Transiver"
+  },
+  "version": "0.1",
+  "frameworks": [
+        "arduino",
+        "wiringpi"
+  ],
+  "platforms": "*"
+}
