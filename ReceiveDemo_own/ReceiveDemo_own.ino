@@ -47,6 +47,8 @@ WebSocketsClient webSocket;
 
 RCSwitch mySwitch = RCSwitch();
 
+esp::Syslog& syslog = esp::Syslog::Instance();
+
 void debugWsPrint(const char* format, ...) {
   
   char buffer[256];
@@ -103,12 +105,36 @@ void setup() {
   //webSocket.setAuthorization("user", "Password"); // HTTP Basic Authorization
   webSocket.onEvent(webSocketEvent);
 
-  server.on("/", handleRoot);
+  server.on("/log", handle_log);
   server.begin();
+
+  syslog.Log("Test: %d", 123);
+  syslog.Log("Test: %d", 456);
+  syslog.Log("Test: %d", 789);
+  syslog.Log("Test: %d", 122);
+  Serial.println("Started");
 }
 
-void handleRoot() {
-  server.send(200, "text/plain", "Hello!");
+static void handle_log() {
+  String output = "Log entry list (now: ";
+  output += millis();
+  output += "):\n";
+
+  esp::Syslog::Iter& iter = syslog.Items();
+  while (iter.HasNext()) {
+    esp::LogEntry* entry = iter.Next();
+    if (entry->time == 0) {
+      continue;
+    }
+
+    output += "[";
+    output += entry->time;
+    output += "] ";
+    output += entry->str;
+    output += "\n";
+  }
+
+  server.send(200, "text/plain", output);
 }
 
 void setup_wifi() {
